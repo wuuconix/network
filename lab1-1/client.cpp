@@ -28,13 +28,13 @@ int main()
     ipOfServer.sin_port = htons(2017);
     ipOfServer.sin_addr.s_addr = inet_addr("127.0.0.1"); //将点分十进制ip字符串转化为网络序的十进制整数ip
  
-    if(connect(CreateSocket, (struct sockaddr *)&ipOfServer, sizeof(ipOfServer))<0)
+    if(connect(CreateSocket, (struct sockaddr *)&ipOfServer, sizeof(ipOfServer)) < 0)
     {
         printf("Connection failed due to port and ip problems\n");
         return 1;
     }
  
-    while((n = read(CreateSocket, dataReceived, sizeof(dataReceived)-1)) > 0) //read函数的返回值是读到的字符长度，如果为0则是EOF，-1则是报错
+    while((n = read(CreateSocket, dataReceived, sizeof(dataReceived) - 1)) > 0) //read函数的返回值是读到的字符长度，如果为0则是EOF，-1则是报错
     {
         dataReceived[n] = 0;
         if(fputs(dataReceived, stdout) == EOF)
