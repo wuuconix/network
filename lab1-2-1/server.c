@@ -10,16 +10,15 @@
 
 // 服务器从网络读入和返回
 
-void str_back(int sockfd)
+void str_back(int sockfd) //这里的参数即 每次的连接套接字
 {
     ssize_t n;
-    char buf[255] = {0};
-    while(1) {
+    char buf[1025] = {0};
+    while(1) {  //循环从套接字中读，保证读完整，每次读好后马上写
         n = read(sockfd, buf, sizeof(buf)); //raed函数的返回值是ssize_t
         if(n == 0)
             break;
         write(sockfd, buf, n);
-        printf("recv:\n%ssend back to clinet yet!\n", buf);
         bzero(buf, sizeof(buf));
     }
 }
