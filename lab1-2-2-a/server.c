@@ -52,7 +52,7 @@ int main()
     }
     bzero(&servaddr, sizeof(servaddr));
     servaddr.sin_family = AF_INET;
-    servaddr.sin_port = htons(23334);
+    servaddr.sin_port = htons(23333);
     servaddr.sin_addr.s_addr = htonl(INADDR_ANY);
     bind(listenfd, (struct sockaddr *)&servaddr, sizeof(servaddr));
     listen(listenfd, 5);
