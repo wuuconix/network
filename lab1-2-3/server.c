@@ -41,7 +41,6 @@ void str_echo(int sockfd)
 
 int main() {
     int listenfd, connfd;
-    socklen_t clilen;
     pid_t child_pid;
     struct sockaddr_in servaddr;
     struct sockaddr_in cliaddr;
@@ -56,18 +55,18 @@ int main() {
     servaddr.sin_port = htons(PORT);
     servaddr.sin_addr.s_addr = htonl(INADDR_ANY);
     bind(listenfd, (struct sockaddr *)&servaddr, sizeof(servaddr));
-    //设置最大连接数目
-    listen(listenfd, 5);
+    listen(listenfd, 5);   //设置最大连接数目
 
-    while(1) {
-        clilen = sizeof(clilen);
-        connfd = accept(listenfd, (struct sockaddr *)&cliaddr,&clilen);   //创建子进程 进行读入和返回
+    while(1)
+    {
+        connfd = accept(listenfd, NULL,NULL);
         printf("a client connect me!\n");
-        if((child_pid = fork()) == 0) {
-            close(listenfd); //在子进程中关闭父进程的监听套接字
+        if((child_pid = fork()) == 0)  //fork 返回零表示成功
+        {
+            close(listenfd); //在子进程中关闭父进程的监听套接字 子进程的作用只是去接收一个链接而已，只需要处理连接套接字
             str_echo(connfd);
-            exit(0);
             printf("a client disconnect me!\n");
+            exit(0);
         }
         close(connfd);   //父进程中关闭已连接套接字
     }
