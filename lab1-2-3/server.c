@@ -17,23 +17,17 @@ void str_echo(int sockfd)
     char wasteBuf[65535]; //垃圾区
     while(1) 
     { 
-        bzero(numbuf, sizeof(numbuf));
         int n = read(sockfd, numbuf, 4);
-        numbuf[4] = 0;
         if(n == 0)
             break;
-        int length = (numbuf[0] - 48) * 1000 + (numbuf[1] - 48) * 100 + (numbuf[2] - 48) * 10 + (numbuf[3] - 48); //信息中有效字符长度（包括换行
-
-        recvbuf = (char*)malloc(sizeof(char) * (length + 1));
-        read(sockfd, recvbuf, length + 1); //没有手动加\0 可能需要更改
+        int length = atoi(numbuf); //将字符串转化为数字
+        recvbuf =  (char*)malloc(sizeof(char) * (length + 1));
+        read(sockfd, recvbuf, length);
         read(sockfd, wasteBuf, sizeof(wasteBuf));
         sendbuf = (char*)malloc(sizeof(char) * (length + 10));
+        sprintf(sendbuf, "%4d", length + 5); //将整形转化为字符放入sendbuf
+        strcpy(sendbuf + 4, "ECHO:");
         strcpy(sendbuf + 9, recvbuf); //把真实的有效信息cpy进入sendbuf
-        sendbuf[0] = (length + 5) / 1000 + 48; //多了五位有效信息 ECHO:
-        sendbuf[1] = ((length + 5) / 100) % 10 + 48;
-        sendbuf[2] = ((length + 5) / 10) % 10 + 48;
-        sendbuf[3] = (length + 5) % 10 + 48;
-        sendbuf[4] = 'E', sendbuf[5] = 'C', sendbuf[6] = 'H', sendbuf[7] = 'O', sendbuf[8] = ':';
         write(sockfd, sendbuf, length + 10);
     }
 }
@@ -42,7 +36,6 @@ int main() {
     int listenfd, connfd;
     pid_t child_pid;
     struct sockaddr_in servaddr;
-    struct sockaddr_in cliaddr;
 
     if((listenfd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
     {

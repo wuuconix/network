@@ -17,7 +17,6 @@ void str_echo(int sockfd)
     char wasteBuf[65535]; //垃圾区
     while(1) 
     { 
-        bzero(numbuf, sizeof(numbuf));
         int n = read(sockfd, numbuf, 4);
         if(n == 0)
             break;
@@ -26,7 +25,7 @@ void str_echo(int sockfd)
         read(sockfd, recvbuf, length);
         read(sockfd, wasteBuf, sizeof(wasteBuf));
         sendbuf = (char*)malloc(sizeof(char) * (length + 10));
-        sprintf(sendbuf, "%d", length + 5); //将整形转化为字符放入sendbuf
+        sprintf(sendbuf, "%4d", length + 5); //将整形转化为字符放入sendbuf
         strcpy(sendbuf + 4, "ECHO:");
         strcpy(sendbuf + 9, recvbuf); //把真实的有效信息cpy进入sendbuf
         write(sockfd, sendbuf, length + 10);
