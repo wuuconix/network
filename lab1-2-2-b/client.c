@@ -7,6 +7,7 @@
 #include <arpa/inet.h>
 #include <string.h>
 #define BUFSIZE 1024
+#define PORT 23333
 
 void str_cli(FILE *fp, int sockfd){
   
@@ -14,27 +15,21 @@ void str_cli(FILE *fp, int sockfd){
     char sendbuf[BUFSIZE]; // 发送缓冲区
     char *recvbuf; // 用numbuf得到的长度来确定具体长度
     char numbuf[5]; //读取收到的字符的前4位确定后面的长度，最后一位存\0
-
+    char wasteBuf[65535]; //垃圾区
     while(fgets(getsbuf, sizeof(getsbuf), fp) != NULL)  //循环从stdin读入 向stdin输出
     {
-        bzero(sendbuf, sizeof(sendbuf));
-        sendbuf[0] = strlen(getsbuf) / 1000 + 48; //有效长度的千位  转ascii码
-        sendbuf[1] = (strlen(getsbuf) / 100) % 10 + 48;
-        sendbuf[2] = (strlen(getsbuf) / 10) % 10+ 48;
-        sendbuf[3] = strlen(getsbuf) % 10 + 48;
+        getsbuf[strlen(getsbuf) - 1] = 0; //换行不算有效数据，设置为0
+        sprintf(sendbuf, "%4ld", strlen(getsbuf)); //将getsbuf中有效的长度放入sendbuf前四位
         strcpy(sendbuf + 4, getsbuf);
-
         write(sockfd, sendbuf, sizeof(sendbuf));
-        read(sockfd, numbuf, 4);
-
-        int length = (numbuf[0] - 48) * 1000 + (numbuf[1] - 48) * 100 + (numbuf[2] - 48) * 10 + (numbuf[3] - 48); //信息中有效字符长度（包括换行
+        read(sockfd, numbuf, 4); //读取长度
+        int length = atoi(numbuf);
         recvbuf = (char*)malloc(sizeof(char) * (length + 1)); //根据实际长度确定recvbuf大小
-        read(sockfd, recvbuf, length + 1); //这里不能用sizeof(recvbuf)，因为它是指针
-
-        printf("%s", recvbuf);
+        read(sockfd, recvbuf, length); //这里不能用sizeof(recvbuf)，因为它是指针
+        read(sockfd, wasteBuf, sizeof(wasteBuf)); //把套接字缓冲区剩余的放入垃圾区
+        printf("%s\n", recvbuf);
         printf("---------------\n");
     }
-
 }
 
 int main()
@@ -48,7 +43,7 @@ int main()
     }
     bzero(&servaddr,sizeof(servaddr));
     servaddr.sin_family = AF_INET;
-    servaddr.sin_port = htons(23334); //端口号
+    servaddr.sin_port = htons(PORT); //端口号
     inet_pton(AF_INET, "127.0.0.1", &servaddr.sin_addr); //设置服务器ip
     if (connect(sockfd, (struct sockaddr*)&servaddr,sizeof(servaddr)) < 0)
     {
