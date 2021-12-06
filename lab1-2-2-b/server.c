@@ -9,7 +9,7 @@
 #include <errno.h>
 #define PORT 23333
 
-void str_back(int sockfd)
+void str_echo(int sockfd)
 {
     char *recvbuf;
     char numbuf[5]; //读取收到的字符的前4位确定后面的长度，最后一位存\0
@@ -52,7 +52,7 @@ int main()
     {
         connfd = accept(listenfd, (struct sockaddr *)NULL, NULL);
         printf("a client connect me!\n");
-        str_back(connfd);
+        str_echo(connfd);
         close(connfd);   //处理好一个请求后关闭它
         printf("a client disconnect me!\n");
     }
