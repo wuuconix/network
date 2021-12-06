@@ -35,7 +35,6 @@ void str_echo(int sockfd)
         sendbuf[3] = (length + 5) % 10 + 48;
         sendbuf[4] = 'E', sendbuf[5] = 'C', sendbuf[6] = 'H', sendbuf[7] = 'O', sendbuf[8] = ':';
         write(sockfd, sendbuf, length + 10);
-
     }
 }
 
@@ -61,7 +60,7 @@ int main() {
     {
         connfd = accept(listenfd, NULL,NULL);
         printf("a client connect me!\n");
-        if((child_pid = fork()) == 0)  //fork 返回零表示成功
+        if((child_pid = fork()) == 0)  //fork 等于零才会进入if里面，而子进程才是 0，父进程则会返回自己真实的pid。故只有子进程才会进入其中
         {
             close(listenfd); //在子进程中关闭父进程的监听套接字 子进程的作用只是去接收一个链接而已，只需要处理连接套接字
             str_echo(connfd);
