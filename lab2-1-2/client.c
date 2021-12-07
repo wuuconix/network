@@ -13,6 +13,8 @@ void str_cli(int sockfd, struct sockaddr_in serveraddr, int addrlen)
 	char recvbuf[BUFSIZE];
 	while(fgets(sendbuf, sizeof(sendbuf), stdin) != NULL)  //循环从stdin读入 向stdin输出
 	{
+		if (sendbuf[0] == 'q' && sendbuf[1] == '\n')
+			break;
         if (sendto(sockfd, sendbuf, sizeof(sendbuf), 0, (struct sockaddr *) &serveraddr, addrlen) == -1)
 		{
 			printf("socket sendto error!\n");

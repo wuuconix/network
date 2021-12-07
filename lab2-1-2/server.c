@@ -14,19 +14,25 @@ void str_echo(int sockfd, struct sockaddr_in clientaddr, int addrlen, char Recvb
     char sendbuf[BUFSIZE + 5];
     char recvbuf[BUFSIZE];
     strcpy(recvbuf, Recvbuf);
-    printf("%s" , recvbuf);
-    strcpy(sendbuf, "echo:");
-    strcpy(sendbuf + 5, recvbuf);
-
-    if (sendto(sockfd, sendbuf, recv_len + 5, 0, (struct sockaddr*) &clientaddr, sizeof(clientaddr)) == -1)
+    while(recv_len > 0) //当recv_len 小于等于 0 时表示通信结束或者有错误
     {
-        printf("socket sendto error!\n");
-        return;
+        printf("%s" , recvbuf);
+        strcpy(sendbuf, "echo:");
+        strcpy(sendbuf + 5, recvbuf);
+
+        if (sendto(sockfd, sendbuf, recv_len + 5, 0, (struct sockaddr*) &clientaddr, sizeof(clientaddr)) == -1)
+        {
+            printf("socket sendto error!\n");
+            return;
+        }
+        bzero(sendbuf, sizeof(sendbuf));
+        bzero(sendbuf, sizeof(recvbuf));
+        recv_len = recvfrom(sockfd, recvbuf, BUFSIZE, 0, (struct sockaddr *) &clientaddr, &addrlen);
     }
-    bzero(sendbuf, sizeof(sendbuf));
+    return;
 }
 
-int main(void)
+int main()
 {
 	struct sockaddr_in serveraddr, clientaddr;
 	int sockfd;
@@ -57,12 +63,12 @@ int main(void)
         if ((recv_len = recvfrom(sockfd, recvbuf, BUFSIZE, 0, (struct sockaddr *) &clientaddr, &addrlen)) == -1) //recvfrom的最后一个参数不能写为sizeof(clientaddr)
         {
             printf("socket recvfrom error!\n");
-            return;
+            return 0;
         }
         if ((child_pid = fork()) == 0)
         {
             str_echo(sockfd, clientaddr, addrlen, recvbuf, recv_len);
-            exit(0);
+            exit(0); //子进程退出
         }
         bzero(recvbuf, sizeof(recvbuf));
     }
