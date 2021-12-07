@@ -7,6 +7,8 @@
 #include <netinet/in.h>
 #include <sys/wait.h>
 #include <errno.h>
+#include <stdlib.h>
+
 #define PORT 23333
 
 void str_echo(int sockfd)
