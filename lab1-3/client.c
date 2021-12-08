@@ -17,7 +17,6 @@ void str_cli(FILE *fp, int sockfd){
         write(sockfd, sendbuf, sizeof(sendbuf));
         read(sockfd, recvbuf, sizeof(recvbuf));
         printf("%s", recvbuf);
-        //貌似不用每次把sendbuf 和 recvbuf置零，上面的 fgets会把sendbuf 覆盖，read会把recvbuf覆盖
         bzero(sendbuf, sizeof(sendbuf));
         bzero(recvbuf, sizeof(recvbuf));
     }
@@ -27,17 +26,17 @@ void str_cli(FILE *fp, int sockfd){
 int main()
 {
     int sockfd;
-    struct sockaddr_in servaddr;
+    struct sockaddr_in serveraddr;
     if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
     {
         printf("create socket error!\n");
         return 0;
     }
-    bzero(&servaddr,sizeof(servaddr));
-    servaddr.sin_family = AF_INET;
-    servaddr.sin_port = htons(PORT); //端口号
-    inet_pton(AF_INET, "127.0.0.1", &servaddr.sin_addr); //设置服务器ip
-    if (connect(sockfd, (struct sockaddr*)&servaddr,sizeof(servaddr)) < 0)
+    bzero(&serveraddr,sizeof(serveraddr));
+    serveraddr.sin_family = AF_INET;
+    serveraddr.sin_port = htons(PORT); //端口号
+    inet_pton(AF_INET, "127.0.0.1", &serveraddr.sin_addr); //设置服务器ip
+    if (connect(sockfd, (struct sockaddr*)&serveraddr,sizeof(serveraddr)) < 0)
     {
         printf("connect to server error!\n");
         return 0;

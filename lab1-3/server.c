@@ -19,7 +19,7 @@ void str_add(int sockfd) //这里的参数即 每次的连接套接字
     while(1)
     { 
         int n = read(sockfd, recvbuf, sizeof(recvbuf));
-        if(n == 0) //对方断开了链接
+        if(n <= 0) //对方断开了链接或者有错误
             break;
         int left = 0, right = 0; //左加数、右加数
         int index = 0;
@@ -50,17 +50,17 @@ void str_add(int sockfd) //这里的参数即 每次的连接套接字
 int main() 
 {
     int listenfd, connfd;
-    struct sockaddr_in servaddr;
+    struct sockaddr_in serveraddr;
 
     if((listenfd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
     {
         printf("create a listen socket error!\n");
     }
-    bzero(&servaddr, sizeof(servaddr));
-    servaddr.sin_family = AF_INET;
-    servaddr.sin_port = htons(PORT);
-    servaddr.sin_addr.s_addr = htonl(INADDR_ANY);
-    bind(listenfd, (struct sockaddr *)&servaddr, sizeof(servaddr));
+    bzero(&serveraddr, sizeof(serveraddr));
+    serveraddr.sin_family = AF_INET;
+    serveraddr.sin_port = htons(PORT);
+    serveraddr.sin_addr.s_addr = htonl(INADDR_ANY);
+    bind(listenfd, (struct sockaddr *)&serveraddr, sizeof(serveraddr));
     listen(listenfd, 5);
 
     while(1) //循环服务器  处理好一个连接后 断开 接受另外一个连接。
@@ -69,7 +69,7 @@ int main()
         printf("a client connect me!\n");
         str_add(connfd);
         printf("a client disconnect me!\n");
-        close(connfd);   //父进程中关闭已连接套接字
+        close(connfd);
     }
     return 0;
 }
