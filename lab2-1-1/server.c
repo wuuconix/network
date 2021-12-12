@@ -27,8 +27,6 @@ void str_echo(int sockfd, struct sockaddr_in clientaddr, int addrlen)
         printf("socket sendto error!\n");
         return;
     }
-    bzero(recvbuf, sizeof(recvbuf));
-    bzero(sendbuf, sizeof(sendbuf));
 }
 
 int main(void)

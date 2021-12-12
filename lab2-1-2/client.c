@@ -27,8 +27,6 @@ void str_cli(int sockfd, struct sockaddr_in serveraddr, int addrlen)
 		}
         printf("%s", recvbuf);
 		printf("---------------\n");
-        bzero(sendbuf, sizeof(sendbuf));
-        bzero(recvbuf, sizeof(recvbuf));
     }
 }
 int main(void)
@@ -46,7 +44,7 @@ int main(void)
     bzero(&serveraddr, 0);
 	serveraddr.sin_family = AF_INET;
 	serveraddr.sin_port = htons(PORT);
-	inet_pton(AF_INET, "127.0.0.1", &serveraddr.sin_addr);
+	serveraddr.sin_addr.s_addr = inet_addr("127.0.0.1"); //设置服务器ip
 	str_cli(sockfd, serveraddr, addrlen);
 	return 0;
 }
