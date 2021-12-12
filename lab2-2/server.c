@@ -6,18 +6,16 @@
 #include<time.h>
 #include<unistd.h>
 
-#define BUFSIZE 10240
 #define PORT 23333
 
-void package_receive(int sockfd, struct sockaddr_in clientaddr, int addrlen)
+void package_receive(int sockfd, struct sockaddr_in clientaddr, int addrlen, int bufsize, int wait_time)
 {
-    char recvbuf[BUFSIZE];
-    int recv_len;
-    int num = 0;
+    char *recvbuf = (char*)malloc(sizeof(char) * bufsize); //根据终端输入的缓冲区长度动态申请大小
+    int num = 0; //用来统计服务端已经接收了多少个报文了
     while(1)
     {
-        usleep(100);
-        if ((recv_len = recvfrom(sockfd, recvbuf, BUFSIZE, 0, (struct sockaddr *) &clientaddr, &addrlen)) == -1) //recvfrom的最后一个参数不能写为sizeof(clientaddr)
+        usleep(wait_time); //睡眠wait_time个毫秒数，wait_time数值越高，服务器端接收速率越慢
+        if ((recvfrom(sockfd, recvbuf, bufsize, 0, (struct sockaddr *) &clientaddr, &addrlen)) == -1)
         {
             printf("recv package error!\n");
             return;
@@ -28,11 +26,15 @@ void package_receive(int sockfd, struct sockaddr_in clientaddr, int addrlen)
 
 int main(void)
 {
+    int bufsize, wait_time; //分别代表缓冲区大小 与每次recvfrom前等待的毫秒数
+    printf("please input bufsize and wait time(microseconds): ");
+    scanf("%d %d", &bufsize, &wait_time);
+
 	struct sockaddr_in serveraddr, clientaddr;
 	int sockfd;
     int addrlen = sizeof(clientaddr);
 	
-	if ((sockfd=socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1)
+	if ((sockfd=socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1) //创建UDP套接字
 	{
         printf("create socket error!\n");
         return 0;
@@ -49,6 +51,6 @@ int main(void)
         return 0;
 	}
 
-    package_receive(sockfd, clientaddr, addrlen);
+    package_receive(sockfd, clientaddr, addrlen, bufsize, wait_time);
 	return 0;
 }
